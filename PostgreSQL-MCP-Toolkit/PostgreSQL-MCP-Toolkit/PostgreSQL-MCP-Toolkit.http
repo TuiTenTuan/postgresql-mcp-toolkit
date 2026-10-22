@@ -1,0 +1,146 @@
+@HostAddress = http://localhost:8080
+@APIKey = 3da9418a-067c-405d-819b-ab4b79940e48
+@WrongAPIKey = wrong-key
+
+### Health check (no API key required)
+GET {{HostAddress}}/health
+Accept: application/json
+
+### Unauthorized request (missing API key)
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "list_tables"
+  }
+}
+
+### Unauthorized request (wrong API key)
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{WrongAPIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "list_tables"
+  }
+}
+
+### List all tables in public schema (valid API key)
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "list_tables",
+    "arguments": {
+      "schema": "public"
+    }
+  }
+}
+
+### Get table structure for a known table
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "get_table_structure",
+    "arguments": {
+      "tableName": "DeliveryDetails_YLO_CKP",
+      "schema": "public"
+    }
+  }
+}
+
+### Get table structure for a missing table
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 5,
+  "method": "tools/call",
+  "params": {
+    "name": "get_table_structure",
+    "arguments": {
+      "tableName": "does_not_exist",
+      "schema": "public"
+    }
+  }
+}
+
+### Execute a SELECT query
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 6,
+  "method": "tools/call",
+  "params": {
+    "name": "execute_raw_sql",
+    "arguments": {
+      "sql": "SELECT * FROM public.DeliveryDetails_YLO_CKP LIMIT 10;"
+    }
+  }
+}
+
+### Execute invalid SQL to validate error handling
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 8,
+  "method": "tools/call",
+  "params": {
+    "name": "execute_raw_sql",
+    "arguments": {
+      "sql": "SELECT FROM public.users;"
+    }
+  }
+}
+
+### Execute empty SQL to validate guard clause
+POST {{HostAddress}}/
+Accept: application/json, text/event-stream
+x-api-key: {{APIKey}}
+Content-Type: application/json
+MCP-Protocol-Version: 2025-11-25
+{
+  "jsonrpc": "2.0",
+  "id": 9,
+  "method": "tools/call",
+  "params": {
+    "name": "execute_raw_sql",
+    "arguments": {
+      "sql": ""
+    }
+  }
+}

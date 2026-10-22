@@ -1,0 +1,10 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/*.user
+**/*.http
+**/Properties/launchSettings.json
+README.md
+.dockerignore
+Dockerfile
